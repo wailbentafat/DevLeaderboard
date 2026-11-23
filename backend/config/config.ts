@@ -60,6 +60,18 @@ function loadConfig(): Config {
         Log: {
             Level: process.env.LOG_LEVEL ?? defaults.LOG_LEVEL,
         },
+        Link: process.env.MCID_PROJECT_ID?.trim()
+            ? {
+                  McidUrl: process.env.MCID_URL ?? "",
+                  ProjectId: process.env.MCID_PROJECT_ID,
+                  ApiKey: process.env.MCID_API_KEY ?? "",
+                  ServerId: process.env.MCID_SERVER_ID ?? "",
+                  WebhookId: process.env.MCID_LINK_WEBHOOK_ID ?? "",
+                  WebhookSecret: process.env.MCID_LINK_WEBHOOK_SECRET ?? "",
+                  PublicUrl: process.env.PUBLIC_URL ?? "",
+                  SessionSecret: process.env.LINK_SESSION_SECRET ?? "",
+              }
+            : undefined,
     };
 
     const result = configSchema.safeParse(raw);

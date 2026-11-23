@@ -74,6 +74,22 @@ const logConfigSchema = z.object({
     Level: z.enum(["debug", "info", "warn", "error"], "LOG_LEVEL must be debug, info, warn or error"),
 });
 
+// The "link your GitHub" page. All-or-nothing: with no MCID_PROJECT_ID the
+// feature is off and the rest of the app boots as before.
+const linkConfigSchema = z.object({
+    /** MCID API root, including /api (e.g. https://mcid.microclub.info/api). */
+    McidUrl: z.string().url("MCID_URL must be a valid URL").transform((url) => url.replace(/\/+$/, "")),
+    ProjectId: z.string().min(1, "MCID_PROJECT_ID is required"),
+    ApiKey: z.string().min(1, "MCID_API_KEY is required"),
+    ServerId: z.string().min(1, "MCID_SERVER_ID is required"),
+    WebhookId: z.string().min(1, "MCID_LINK_WEBHOOK_ID is required"),
+    // Empty when the webhook was created without a signature requirement.
+    WebhookSecret: z.string(),
+    /** Public origin of this site, used to build the OAuth callback address. */
+    PublicUrl: z.string().url("PUBLIC_URL must be a valid URL").transform((url) => url.replace(/\/+$/, "")),
+    SessionSecret: z.string().min(32, "LINK_SESSION_SECRET must be at least 32 characters"),
+});
+
 export const configSchema = z.object({
     Database: databaseConfigSchema,
     Port: z.coerce.number().int().positive(),
@@ -82,7 +98,9 @@ export const configSchema = z.object({
     Score: scoreWeightsSchema,
     Leaderboard: leaderboardConfigSchema,
     Log: logConfigSchema,
+    Link: linkConfigSchema.optional(),
 });
 
+export type LinkConfig = z.infer<typeof linkConfigSchema>;
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
 export type Config = z.infer<typeof configSchema>;

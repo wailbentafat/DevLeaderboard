@@ -3,6 +3,7 @@ import helmet from "helmet";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { requestLog } from "./middleware/requestLog.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
+import linkRoutes from "./routes/linkRoutes.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/leaderboard", leaderboardRoutes);
+app.use("/link", linkRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

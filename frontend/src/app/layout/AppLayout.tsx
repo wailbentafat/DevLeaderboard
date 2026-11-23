@@ -13,6 +13,12 @@ export const AppLayout = (): ReactNode => (
                 >
                     DevLeaderboard
                 </Link>
+                <Link
+                    to="/link"
+                    className="ml-auto text-sm text-ink-muted transition-colors hover:text-ink"
+                >
+                    Link your GitHub
+                </Link>
             </div>
         </header>
 

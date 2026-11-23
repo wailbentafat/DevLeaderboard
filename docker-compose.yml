@@ -21,6 +21,15 @@ services:
       DATABASE_PORT: 27017
       DATABASE_NAME: devleaderboard
       GITHUB_TOKEN: ${GITHUB_TOKEN:?set GITHUB_TOKEN (needed to boot)}
+      # "Link your GitHub" page: leave MCID_PROJECT_ID empty to turn it off.
+      MCID_URL: ${MCID_URL:-https://mcid.microclub.info/api}
+      MCID_PROJECT_ID: ${MCID_PROJECT_ID:-}
+      MCID_API_KEY: ${MCID_API_KEY:-}
+      MCID_SERVER_ID: ${MCID_SERVER_ID:-}
+      MCID_LINK_WEBHOOK_ID: ${MCID_LINK_WEBHOOK_ID:-}
+      MCID_LINK_WEBHOOK_SECRET: ${MCID_LINK_WEBHOOK_SECRET:-}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+      LINK_SESSION_SECRET: ${LINK_SESSION_SECRET:-}
     depends_on:
       mongo:
         condition: service_healthy
