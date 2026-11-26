@@ -1,0 +1,71 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Typecheck backend
+        working-directory: backend
+        run: npm ci && npm run typecheck
+      - name: Build frontend
+        working-directory: frontend
+        run: npm ci && npm run build
+      - name: Build and start stack
+        # The token only has to be present for the app to boot; the smoke
+        # test below never calls GitHub.
+        env:
+          GITHUB_TOKEN: ci-placeholder
+        run: docker compose up -d --build
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null localhost:8080/ && curl -sf localhost:8080/api/health >/dev/null; then
+              echo "stack is up"; exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        env:
+          GITHUB_TOKEN: ci-placeholder
+        run: docker compose down -v
+
+  publish:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Docker image names must be lowercase (the repo is wailbentafat/DevLeaderboard).
+      - name: Image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}-${{ matrix.service }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ steps.image.outputs.name }}:latest
+            ${{ steps.image.outputs.name }}:sha-${{ github.sha }}

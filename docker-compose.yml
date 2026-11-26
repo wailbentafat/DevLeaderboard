@@ -1,0 +1,41 @@
+# Usage: GITHUB_TOKEN=ghp_xxx docker compose up --build
+# Frontend: http://localhost:8080   Backend API: http://localhost:3000
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      DATABASE_HOST: mongo
+      DATABASE_PORT: 27017
+      DATABASE_NAME: devleaderboard
+      GITHUB_TOKEN: ${GITHUB_TOKEN:?set GITHUB_TOKEN (needed to boot)}
+      # Optional: the Dev department filter. Leave MCID_URL empty to turn it off.
+      MCID_URL: ${MCID_URL:-}
+      MCID_API_KEY: ${MCID_API_KEY:-}
+      MCID_DEV_ROLE_IDS: ${MCID_DEV_ROLE_IDS:-}
+      MCID_ROSTER_TTL_MS: ${MCID_ROSTER_TTL_MS:-600000}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

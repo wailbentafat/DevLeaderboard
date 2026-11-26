@@ -1,0 +1,14 @@
+# Install on the server as /etc/caddy/sites/leaderboard.caddy (the main Caddyfile
+# imports /etc/caddy/sites/*.caddy), then `systemctl reload caddy`.
+leaderboard.164-68-103-224.sslip.io {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	reverse_proxy 127.0.0.1:13100
+}
