@@ -53,6 +53,13 @@ services:
       MCID_API_KEY: ${MCID_API_KEY:-}
       MCID_DEV_ROLE_IDS: ${MCID_DEV_ROLE_IDS:-}
       MCID_ROSTER_TTL_MS: ${MCID_ROSTER_TTL_MS:-600000}
+      # "Link your GitHub" on the Dev tab (sign in with MCID). Off while MCID_PROJECT_ID is empty.
+      MCID_PROJECT_ID: ${MCID_PROJECT_ID:-}
+      MCID_SERVER_ID: ${MCID_SERVER_ID:-}
+      MCID_WEBHOOK_ID: ${MCID_WEBHOOK_ID:-}
+      MCID_WEBHOOK_SECRET: ${MCID_WEBHOOK_SECRET:-}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
     depends_on:
       mongo:
         condition: service_healthy

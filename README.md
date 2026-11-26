@@ -37,6 +37,19 @@ The repo contains both halves of the product:
   down, with a retry hint and the server's `Retry-After`.
 - **Meta panel:** scoring weights, GitHub rate-limit budget and snapshot freshness.
 
+## Link your GitHub (Dev tab)
+
+On the **Dev** tab a card reads "Don't see yourself here?". A member signs in with MCID, then enters
+their GitHub username, and it is sent to an MCID inbound webhook that stores the link. The Dev list
+is then built from MCID: members holding a Dev role, with their linked GitHub account.
+
+- Backend: `GET /auth/login`, `GET /auth/callback`, `POST /auth/logout`, `GET /link/me`, `POST /link/github`.
+  Login uses a signed single-use state cookie and a signed one-hour session cookie; the MCID API key and
+  webhook secret never reach the browser.
+- Turn it on with `MCID_PROJECT_ID` (plus `MCID_SERVER_ID`, `MCID_WEBHOOK_ID`, `MCID_WEBHOOK_SECRET`,
+  `PUBLIC_URL`, `SESSION_SECRET`; see `backend/.env.example`). Off while `MCID_PROJECT_ID` is empty.
+- Register `<PUBLIC_URL>/api/auth/callback` as a redirect URI on the MCID project.
+
 ## Stack
 
 **Backend** — Express 5 · TypeScript (ESM) · Mongoose · Node 22+ · GitHub GraphQL API (REST

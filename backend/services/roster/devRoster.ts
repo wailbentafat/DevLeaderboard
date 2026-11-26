@@ -48,6 +48,12 @@ const fetchRoster = async (mcid: McidConfig): Promise<DevRoster> => {
     return { logins, fingerprint, fetchedAt: Date.now() };
 };
 
+/** Makes the next read ask MCID again (a member just linked an account). */
+export const invalidateDevRoster = (): void => {
+    if (cached !== null) cached = { ...cached, fetchedAt: 0 };
+    lastFailureAt = 0;
+};
+
 /**
  * The current Dev roster. Cached, so MCID is asked once per TTL however many
  * people open the page. If MCID is down the last good list keeps being served;

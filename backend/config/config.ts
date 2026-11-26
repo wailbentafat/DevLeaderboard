@@ -19,6 +19,10 @@ for (const candidate of dotenvCandidates) {
 }
 
 function loadConfig(): Config {
+    const devRoleIds = (process.env.MCID_DEV_ROLE_IDS ?? "")
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
     const raw = {
         Database: {
             // An empty value means "unset" so `DATABASE_URL=` in .env falls
@@ -60,16 +64,27 @@ function loadConfig(): Config {
         Log: {
             Level: process.env.LOG_LEVEL ?? defaults.LOG_LEVEL,
         },
-        // Off unless MCID_URL is set; then the rest becomes required.
-        Mcid: process.env.MCID_URL?.trim()
+        // The Dev filter is off unless MCID_URL and at least one role id are set.
+        Mcid:
+            process.env.MCID_URL?.trim() && devRoleIds.length > 0
+                ? {
+                      Url: process.env.MCID_URL,
+                      ApiKey: process.env.MCID_API_KEY ?? "",
+                      DevRoleIds: devRoleIds,
+                      CacheTtlMs: process.env.MCID_ROSTER_TTL_MS ?? defaults.MCID_ROSTER_TTL_MS,
+                  }
+                : undefined,
+        // "Link your GitHub" is off unless MCID_PROJECT_ID is set; then the rest becomes required.
+        Link: process.env.MCID_PROJECT_ID?.trim()
             ? {
-                  Url: process.env.MCID_URL,
+                  Url: process.env.MCID_URL ?? "",
                   ApiKey: process.env.MCID_API_KEY ?? "",
-                  DevRoleIds: (process.env.MCID_DEV_ROLE_IDS ?? "")
-                      .split(",")
-                      .map((entry) => entry.trim())
-                      .filter((entry) => entry.length > 0),
-                  CacheTtlMs: process.env.MCID_ROSTER_TTL_MS ?? defaults.MCID_ROSTER_TTL_MS,
+                  ProjectId: process.env.MCID_PROJECT_ID,
+                  ServerId: process.env.MCID_SERVER_ID ?? "",
+                  WebhookId: process.env.MCID_WEBHOOK_ID ?? "",
+                  WebhookSecret: process.env.MCID_WEBHOOK_SECRET ?? "",
+                  PublicUrl: process.env.PUBLIC_URL ?? "",
+                  SessionSecret: process.env.SESSION_SECRET ?? "",
               }
             : undefined,
     };

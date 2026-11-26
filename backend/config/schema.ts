@@ -88,6 +88,26 @@ const mcidConfigSchema = z.object({
     CacheTtlMs: z.coerce.number().int().positive(),
 });
 
+// "Link your GitHub": members sign in with MCID and submit their GitHub username
+// to an MCID inbound webhook (identityMapping github), which fills the Dev list.
+// Optional: without it the leaderboard has no sign-in and /link/me says disabled.
+const linkConfigSchema = z.object({
+    /** MCID API root, including /api. */
+    Url: z.string().url("MCID_URL must be a valid URL").transform((url) => url.replace(/\/+$/, "")),
+    ApiKey: z.string().min(1, "MCID_API_KEY is required"),
+    ProjectId: z.string().min(1, "MCID_PROJECT_ID is required"),
+    ServerId: z.string().min(1, "MCID_SERVER_ID is required"),
+    WebhookId: z.string().min(1, "MCID_WEBHOOK_ID is required"),
+    /** Empty when the webhook does not require a signature. */
+    WebhookSecret: z.string(),
+    /** Public origin of this site; the MCID redirect URI is <PublicUrl>/api/auth/callback. */
+    PublicUrl: z
+        .string()
+        .url("PUBLIC_URL must be a valid URL")
+        .transform((url) => url.replace(/\/+$/, "")),
+    SessionSecret: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
+});
+
 export const configSchema = z.object({
     Database: databaseConfigSchema,
     Port: z.coerce.number().int().positive(),
@@ -97,8 +117,10 @@ export const configSchema = z.object({
     Leaderboard: leaderboardConfigSchema,
     Log: logConfigSchema,
     Mcid: mcidConfigSchema.optional(),
+    Link: linkConfigSchema.optional(),
 });
 
 export type McidConfig = z.infer<typeof mcidConfigSchema>;
+export type LinkConfig = z.infer<typeof linkConfigSchema>;
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
 export type Config = z.infer<typeof configSchema>;

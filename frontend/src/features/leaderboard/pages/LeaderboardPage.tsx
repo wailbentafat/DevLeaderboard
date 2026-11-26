@@ -9,6 +9,7 @@ import { Button } from "@/shared/ui/Button";
 import { EmptyState, ErrorState, Skeleton } from "@/shared/ui/States";
 import { DEFAULT_PERIOD, DEFAULT_SCOPE, MAX_CUSTOM_DAYS, PAGE_SIZE, SCOPE_LABELS } from "../constants";
 import { useLeaderboard } from "../api";
+import { LinkGithubPanel } from "@/features/link/components/LinkGithubPanel";
 import { Pagination } from "../components/Pagination";
 import { ScopeSelector } from "../components/ScopeSelector";
 import { ScoreCards } from "../components/ScoreCards";
@@ -160,6 +161,9 @@ export const LeaderboardPage = (): ReactNode => {
                     />
                 </div>
             </div>
+
+            {/* Dev department: sign in with MCID and link a GitHub account. */}
+            {scope === "dev" && <LinkGithubPanel />}
 
             {/* States */}
             {leaderboard.isPending ? (
